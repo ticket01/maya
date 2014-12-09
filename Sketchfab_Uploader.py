@@ -89,7 +89,7 @@ class Sketchfab_Uploader:
 		# create a dummy file with zero length that has the same name
 		open(model_file, 'w').close()
 		# export Maya scene as FBX
-		exportAll(model_file, force=True, type='FBX export')
+		exportAll(model_file, force=True, preserveReferences=True, type='FBX export')
 		# create a screen shot and save as .png
 		thumb_file_name = '%s.png' % base_name
 		buffer = om.MImage()
