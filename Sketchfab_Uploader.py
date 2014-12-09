@@ -1,5 +1,5 @@
 from pymel.core import *
-import re, subprocess, os, shutil, multiprocessing, hashlib, importlib
+import re, subprocess, os, shutil
 from maya import OpenMayaUI as omui
 from maya import OpenMaya as om
 from PySide.QtCore import *
@@ -7,7 +7,7 @@ from PySide.QtGui import *
 from PySide.QtUiTools import *
 from shiboken import wrapInstance
 from functools import partial
-import tempfile, os, json, base64, urllib2, zipfile
+import tempfile, os, json, base64
 from time import sleep
 import requests
 
@@ -15,8 +15,6 @@ class Sketchfab_Uploader:
 
 	# environment settings
 	maya_install_folder = os.getenv("MAYA_LOCATION")
-	uif_main = 'C:\Users\Matthias\Documents\maya\scripts\Sketchfab_Uploader.ui'
-	uif_settings = 'C:\Users\Matthias\Documents\maya\scripts\Sketchfab_Settings.ui'
 	script_folder = os.path.dirname(os.path.realpath(__file__))
 	uif_main = script_folder+"/Sketchfab_Uploader.ui"
 	uif_settings = script_folder+"/Sketchfab_Settings.ui"
