@@ -1,7 +1,7 @@
-from pymel.core import *
 import re, subprocess, os, shutil
 from maya import OpenMayaUI as omui
 from maya import OpenMaya as om
+import maya.cmds as cmds
 from PySide.QtCore import *
 from PySide.QtGui import *
 from PySide.QtUiTools import *
@@ -33,10 +33,10 @@ class Sketchfab_Uploader:
 			return
 		# load main window
 		self.createUI(self.mayaMainWindow)
-		if not language.Env.optionVars.has_key("sfApiToken"):
-			language.Env.optionVars["sfApiToken"] = ""
-		if not language.Env.optionVars.has_key("sfDefaultTags"):
-			language.Env.optionVars["sfDefaultTags"] = ""
+		if not cmds.optionVar(exists="sfApiToken"):
+			cmds.optionVar(sv=("sfApiToken", ""))
+		if not cmds.optionVar(exists="sfDefaultTags"):
+			cmds.optionVar(sv=("sfDefaultTags", ""))
 
 	def createUI(self, parent):
 		# main window
@@ -69,12 +69,12 @@ class Sketchfab_Uploader:
 		self.ui_main.lePassword.setEnabled(checked)
 
 	def saveSettings(self):
-		language.Env.optionVars["sfApiToken"] = self.ui_settings.leApiToken.text()
-		language.Env.optionVars["sfDefaultTags"] = self.ui_settings.leDefaultTags.text()
+		cmds.optionVar(sv=("sfApiToken", self.ui_settings.leApiToken.text()))
+		cmds.optionVar(sv=("sfDefaultTags", self.ui_settings.leDefaultTags.text()))
 
 	def showSettingsDialog(self):
-		self.ui_settings.leApiToken.setText(language.Env.optionVars["sfApiToken"])
-		self.ui_settings.leDefaultTags.setText(language.Env.optionVars["sfDefaultTags"])
+		self.ui_settings.leApiToken.setText(cmds.optionVar(query="sfApiToken"))
+		self.ui_settings.leDefaultTags.setText(cmds.optionVar(query="sfDefaultTags"))
 		self.ui_settings.show()
 
 	def prepareAndUpload(self):
@@ -87,7 +87,7 @@ class Sketchfab_Uploader:
 		# create a dummy file with zero length that has the same name
 		open(model_file, 'w').close()
 		# export Maya scene as FBX
-		exportAll(model_file, force=True, preserveReferences=True, type='FBX export')
+		cmds.file(model_file, force=True, exportAll=True, preserveReferences=True, type="FBX export")
 		# create a screen shot and save as .png
 		thumb_file_name = '%s.png' % base_name
 		buffer = om.MImage()
@@ -98,10 +98,10 @@ class Sketchfab_Uploader:
 		# parameters
 		private = 1 if self.ui_main.cbPrivate.isChecked() else 0
 		password = self.ui_main.lePassword.text() if private else ""
-		tags = language.Env.optionVars["sfDefaultTags"]+" "+self.ui_main.leTags.text()
+		tags = cmds.optionVar(query="sfDefaultTags")+" "+self.ui_main.leTags.text()
 
 		data = {
-			'token': language.Env.optionVars["sfApiToken"],
+			'token': cmds.optionVar(query="sfApiToken"),
 			'name': self.ui_main.leModelName.text(),
 			'description': self.ui_main.pteDescription.toPlainText(),
 			'tags': tags,
@@ -143,7 +143,7 @@ class Sketchfab_Uploader:
 		return model_uid
 
 	def poll_processing_status(self, model_uid):
-		polling_url = "{}/{}/status?token={}".format(self.SKETCHFAB_API_URL, model_uid, language.Env.optionVars["sfApiToken"])
+		polling_url = "{}/{}/status?token={}".format(self.SKETCHFAB_API_URL, model_uid, cmds.optionVar(query="sfApiToken"))
 		max_errors = 10
 		errors = 0
 		retry = 0
